@@ -2,6 +2,8 @@
   "name": "stackos",
   "version": "1.0.0",
   "description": "StackOS — Browser-based Operating System",
+
+  
   "scripts": {
     "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
@@ -12,5 +14,8 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "gh-pages": "^6.3.0"
   }
 }
