@@ -1,9 +1,10 @@
 import React from 'react';
-import ReactDom from 'react-dom/client';
-import app from'./App';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+import './styles/global.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-    <React.StrictMode>
-        <App/>
-        </React.StrictMode>
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
 );
