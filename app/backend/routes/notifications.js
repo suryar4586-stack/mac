@@ -1,0 +1,11 @@
+const r = require('express').Router();
+const c = require('../controllers/notifController');
+const { requireAuth } = require('../middleware/auth');
+r.use(requireAuth);
+r.get('/', c.list);
+r.get('/unread', c.unreadCount);
+r.post('/', c.create);
+r.put('/:id/read', c.markRead);
+r.put('/read/all', c.markAllRead);
+r.delete('/', c.clear);
+module.exports = r;

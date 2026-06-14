@@ -1,0 +1,11 @@
+const r = require('express').Router();
+const c = require('../controllers/authController');
+const { requireAuth } = require('../middleware/auth');
+const { upload } = require('../middleware/upload');
+r.post('/register', c.register);
+r.post('/login', c.login);
+r.get('/profile', requireAuth, c.getProfile);
+r.put('/profile', requireAuth, c.updateProfile);
+r.post('/avatar', requireAuth, upload.single('avatar'), c.updateAvatar);
+r.post('/logout', requireAuth, c.logout);
+module.exports = r;

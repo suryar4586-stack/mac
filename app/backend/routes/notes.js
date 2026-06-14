@@ -1,0 +1,12 @@
+const r = require('express').Router();
+const c = require('../controllers/notesController');
+const { requireAuth } = require('../middleware/auth');
+r.use(requireAuth);
+r.get('/', c.list);
+r.get('/search', c.search);
+r.get('/:id', c.getOne);
+r.post('/', c.create);
+r.put('/:id', c.update);
+r.put('/:id/pin', c.pin);
+r.delete('/:id', c.remove);
+module.exports = r;

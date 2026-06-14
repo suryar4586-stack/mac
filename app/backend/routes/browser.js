@@ -1,0 +1,11 @@
+const r = require('express').Router();
+const c = require('../controllers/browserController');
+const { requireAuth } = require('../middleware/auth');
+r.use(requireAuth);
+r.get('/bookmarks', c.getBookmarks);
+r.post('/bookmarks', c.addBookmark);
+r.delete('/bookmarks/:id', c.removeBookmark);
+r.get('/history', c.getHistory);
+r.post('/history', c.addHistory);
+r.delete('/history', c.clearHistory);
+module.exports = r;
