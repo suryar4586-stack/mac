@@ -1,18 +1,32 @@
-const Database = require('better-sqlite3');
+/**
+ * models/db.js  —  sql.js (pure-JS SQLite, no native build needed)
+ * Persists to disk via fs read/write on every write operation.
+ */
+
+const initSqlJs = require('sql.js');
 const path = require('path');
 const fs = require('fs');
 
 const STORAGE = path.join(__dirname, '..', 'storage');
+const DB_PATH = path.join(STORAGE, 'stackos.db');
 fs.mkdirSync(STORAGE, { recursive: true });
 
-let db;
-const getDB = () => { if (!db) throw new Error('DB not initialised'); return db; };
+let db; // sql.js Database instance
 
+/* ── Boot ──────────────────────────────────────────────────────── */
 async function initDB() {
-  db = new Database(path.join(STORAGE, 'stackos.db'));
-  db.pragma('journal_mode = WAL');
-  db.pragma('foreign_keys = ON');
-  db.exec(`
+  const SQL = await initSqlJs();
+
+  if (fs.existsSync(DB_PATH)) {
+    const buf = fs.readFileSync(DB_PATH);
+    db = new SQL.Database(buf);
+  } else {
+    db = new SQL.Database();
+  }
+
+  db.run('PRAGMA foreign_keys = ON;');
+
+  db.run(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT UNIQUE NOT NULL,
@@ -97,11 +111,56 @@ async function initDB() {
       visited_at TEXT DEFAULT (datetime('now'))
     );
   `);
-  console.log('  ✅ Schema ready');
+
+  persist();
+  console.log('  ✅ sql.js database ready →', DB_PATH);
 }
 
-const run = (sql, p = []) => getDB().prepare(sql).run(...p);
-const get = (sql, p = []) => getDB().prepare(sql).get(...p);
-const all = (sql, p = []) => getDB().prepare(sql).all(...p);
+/* ── Persist to disk ───────────────────────────────────────────── */
+function persist() {
+  if (!db) return;
+  const data = db.export();
+  fs.writeFileSync(DB_PATH, Buffer.from(data));
+}
 
-module.exports = { initDB, getDB, run, get, all };
+/* ── Helpers ────────────────────────────────────────────────────── */
+
+/**
+ * Run a write statement (INSERT / UPDATE / DELETE / CREATE)
+ * Returns { lastInsertRowid, changes }
+ */
+function run(sql, params = []) {
+  if (!db) throw new Error('DB not initialised');
+  db.run(sql, params);
+  const lastInsertRowid = db.exec('SELECT last_insert_rowid() as id')[0]?.values[0][0] ?? null;
+  persist();
+  return { lastInsertRowid };
+}
+
+/**
+ * Get a single row  →  plain object or undefined
+ */
+function get(sql, params = []) {
+  if (!db) throw new Error('DB not initialised');
+  const res = db.exec(sql, params);
+  if (!res.length || !res[0].values.length) return undefined;
+  return zipRow(res[0].columns, res[0].values[0]);
+}
+
+/**
+ * Get all rows  →  array of plain objects
+ */
+function all(sql, params = []) {
+  if (!db) throw new Error('DB not initialised');
+  const res = db.exec(sql, params);
+  if (!res.length) return [];
+  return res[0].values.map(row => zipRow(res[0].columns, row));
+}
+
+function zipRow(cols, vals) {
+  const obj = {};
+  cols.forEach((c, i) => { obj[c] = vals[i]; });
+  return obj;
+}
+
+module.exports = { initDB, run, get, all, persist };

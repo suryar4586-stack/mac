@@ -106,7 +106,7 @@ export function OSProvider({ children }) {
   // Socket.io connection
   useEffect(() => {
     if (!state.token) return;
-    const socket = io('http://localhost:5000', { auth: { token: state.token } });
+    const socket = io('/', { auth: { token: state.token }, path: '/socket.io' });
     socketRef.current = socket;
 
     socket.on('notification', n => dispatch({ type: 'ADD_NOTIF', notif: { ...n, id: Date.now() } }));
