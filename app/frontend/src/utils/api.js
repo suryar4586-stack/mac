@@ -1,6 +1,11 @@
 import axios from 'axios';
 
-const api = axios.create({ baseURL: '/api', withCredentials: true });
+// In production (Vercel) API is on same domain → use relative /api
+// In local dev → Vite proxy forwards /api to localhost:5000
+const api = axios.create({
+  baseURL: '/api',
+  withCredentials: true,
+});
 
 // Attach JWT on every request
 api.interceptors.request.use((cfg) => {
@@ -9,7 +14,7 @@ api.interceptors.request.use((cfg) => {
   return cfg;
 });
 
-// Global 401 handler
+// Global 401 → clear token and redirect to login
 api.interceptors.response.use(
   (r) => r,
   (err) => {

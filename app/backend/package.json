@@ -1,7 +1,7 @@
 {
   "name": "stackos-backend",
   "version": "1.0.0",
-  "description": "StackOS Backend \u2014 Express + Socket.io + SQLite",
+  "description": "StackOS Backend",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
