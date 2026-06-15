@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { OSProvider, useOS } from './context/OScontext';
+import { OSProvider, useOS } from './context/OSContext';
 import Desktop from './pages/Desktop';
 import LoginPage from './pages/LoginPage';
 import BootScreen from './components/BootScreen';
